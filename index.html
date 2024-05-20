@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Campaign Form</title>
+
+  <!-- Meta Pixel Code -->
+  <script>
+    !function (f, b, e, v, n, t, s) {
+      if (f.fbq) return; n = f.fbq = function () {
+        n.callMethod ?
+          n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+      };
+      if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
+      n.queue = []; t = b.createElement(e); t.async = !0;
+      t.src = v; s = b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t, s)
+    }(window, document, 'script',
+      'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '1136031704389115');
+    fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+      src="https://www.facebook.com/tr?id=1136031704389115&ev=PageView&noscript=1" /></noscript>
+  <!-- End Meta Pixel Code -->
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+  <style>
+    .font-inter {
+      font-family: "Inter", sans-serif;
+    }
+  </style>
+</head>
+
+<body class="font-inter">
+  <div class="p-5 max-w-lg mx-auto">
+    <h1 data-aos="fade-left" class="mt-5 text-4xl font-bold">Let's work together!</h1>
+    <p data-aos="fade-left" class="mt-5 font-semibold">Whether you're interested in partnering or learning.</p>
+    <p data-aos="fade-left" class="font-semibold">I want to get in touch with you!</p>
+
+    <div id="message" class="p-5 mt-10 bg-green-500 text-white hidden">
+
+    </div>
+
+    <form data-aos="fade-up" class="bg-gray-100 p-5 mt-10">
+      <input type="hidden" name="campaign_id" value="">
+      <div>
+        <label for="name" class="font-semibold">Nama</label>
+        <input id="name" name="name" type="text" required
+          class="mt-2 border-2 border-black px-4 py-3 block w-full bg-transparent">
+      </div>
+      <div class="mt-5">
+        <label for="wa" class="font-semibold">No. WA</label>
+        <input id="wa" name="wa_number" type="text" required
+          class="mt-2 border-2 border-black px-4 py-3 block w-full bg-transparent">
+      </div>
+      <button type="submit" class="mt-5 p-4 w-full bg-black text-white font-bold disabled:opacity-70">
+        Submit
+      </button>
+    </form>
+  </div>
+
+  <script>
+    AOS.init();
+
+    const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbxP8tvpN5TV5I6gEpIZmUhrm0HFpO4SRQbOBD7JHDacmXXTWyhrIHdcIXzfQxihowHf/exec';
+    const params = new Proxy(new URLSearchParams(window.location.search), {
+      get: (searchParams, prop) => searchParams.get(prop),
+    });
+    const campaignId = params.utm_source;
+    document.querySelector('[name=campaign_id]').value = campaignId;
+
+    document.querySelector('form').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      fbq('track', 'Contact');
+
+      const request = new FormData(this)
+      request.append("action", "add_contact");
+
+      document.querySelector('[type=submit]').disabled = true
+      document.querySelector('[type=submit]').textContent = 'Submitting...'
+
+      fetch(GOOGLE_SHEET_URL, {
+        method: "POST",
+        body: request,
+      })
+        .then((res) => res.json())
+        .then((res) => {
+          const isSuccess = res.success;
+          if (!isSuccess) {
+            console.error(res.message);
+            return;
+          }
+
+          document.querySelector('#message').textContent = 'Data is submitted successfully';
+          document.querySelector('#message').classList.remove('hidden');
+          document.querySelector('[type=submit]').disabled = false
+          document.querySelector('[type=submit]').textContent = 'Submit'
+        })
+        .catch((e) => console.error(e.message));
+    })
+  </script>
+</body>
+
+</html>
